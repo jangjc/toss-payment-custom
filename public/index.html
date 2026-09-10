@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>토스페이먼츠 자체창 결제</title>
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+</head>
+<body>
+    <h1>주문 결제</h1>
+    <button id="payment-button">결제하기</button>
+
+    <script>
+        async function initializePayment() {
+            // 서버에서 환경변수(Client Key) 가져오기
+            const configResponse = await fetch('/api/config');
+            const config = await configResponse.json();
+            
+            // 토스페이먼츠 초기화
+            const tossPayments = TossPayments(config.clientKey);
+            
+            // 구매자 고유 아이디 (토스 예제 방식)
+            //const customerKey = "customer_" + Math.random().toString(36).substring(2, 15);
+            const customerKey = "LOCLcI03h8uAeJmLSG4VO";
+            const payment = tossPayments.payment({ customerKey });
+
+            const button = document.getElementById('payment-button');
+            
+            button.addEventListener('click', async () => {
+                // 토스 자체창 가이드 원본 파라미터 적용
+                await payment.requestPayment({
+                    method: "CARD",
+                    amount: {
+                        currency: "KRW",
+                        value: 50000,
+                    },
+                    orderId: "SW7iA2CRLFdvr2bjBhmOx", // 토스 예제 주문번호 (주의: 중복 결제 시 오류 발생 가능)
+                    orderName: "토스 티셔츠 외 2건",
+                    successUrl: window.location.origin + "/success.html",
+                    failUrl: window.location.origin + "/fail.html",
+                    customerEmail: "customer123@gmail.com",
+                    customerName: "김토스",
+                    customerMobilePhone: "01012341234",
+                    card: {
+                        flowMode: "DIRECT",
+                        easyPay: "토스페이",
+                        useEscrow: false
+                    }
+                });
+            });
+        }
+
+        initializePayment();
+    </script>
+</body>
+</html>
