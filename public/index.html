@@ -27,6 +27,16 @@
             const button = document.getElementById('payment-button');
             
             button.addEventListener('click', async () => {
+                // 실무 포인트: 주문번호(orderId)는 결제 요청 시마다 고유해야 합니다.
+                // 하드코딩하면 중복 결제 오류가 발생하므로, 타임스탬프와 난수를 조합해 고유하게 생성합니다.
+                const generateOrderId = () => {
+                    const timestamp = Date.now();
+                    const randomStr = Math.random().toString(36).substring(2, 8);
+                    return `ORDER_${timestamp}_${randomStr}`;
+                };
+
+                const currentOrderId = generateOrderId();
+
                 // 토스 자체창 가이드 원본 파라미터 적용
                 await payment.requestPayment({
                     method: "CARD",
@@ -34,7 +44,7 @@
                         currency: "KRW",
                         value: 50000,
                     },
-                    orderId: "SW7iA2CRLFdvr2bjBhmOx", // 토스 예제 주문번호 (주의: 중복 결제 시 오류 발생 가능)
+                    orderId: currentOrderId, // 동적으로 생성된 주문번호 사용
                     orderName: "토스 티셔츠 외 2건",
                     successUrl: window.location.origin + "/success.html",
                     failUrl: window.location.origin + "/fail.html",
