@@ -35,12 +35,17 @@
         <option value="">고객을 선택해주세요</option>
       </select>
     </div>
+    <div class="section">
+      <label>2. 상품 선택</label>
+      <div id="productList"></div>
+    </div>
   
   </div>
 
 
   <script>
     const customerSelect = document.getElementById('customerSelect');
+    const productList = document.getElementById('productList');
 
     // 목업 데이터로 고객 옵션 생성
     mockCustomers.forEach(customer => {
@@ -48,6 +53,23 @@
       option.value = customer.customerKey;
       option.textContent = `${customer.name} (${customer.email})`;
       customerSelect.appendChild(option);
+    });
+
+    // 목업 데이터로 상품 리스트 생성
+    mockProducts.forEach(product => {
+      const div = document.createElement('div');
+      div.className = 'product-item';
+      div.innerHTML = `
+        <input type="checkbox" id="${product.productId}" value="${product.productId}" class="product-check">
+        <div style="flex-grow: 1; margin-left: 10px;">
+          <label for="${product.productId}" style="margin: 0;">${product.name}</label>
+          <div style="color: #666; font-size: 14px;">${product.price.toLocaleString()}원</div>
+        </div>
+        <div>
+          수량: <input type="number" id="qty_${product.productId}" value="1" min="1" style="width: 50px;" disabled>
+        </div>
+      `;
+      productList.appendChild(div);
     });
 
 
