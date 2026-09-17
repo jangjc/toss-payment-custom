@@ -1,66 +1,69 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>토스페이먼츠 자체창 결제</title>
-    <script src="https://js.tosspayments.com/v2/standard"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>토스페이먼츠 자체창 결제</title>
+  <script src="https://js.tosspayments.com/v2/standard"></script>
 </head>
+
 <body>
-    <h1>주문 결제</h1>
-    <button id="payment-button">결제하기</button>
+  <h1>주문 결제</h1>
+  <button id="payment-button">결제하기</button>
 
-    <script>
-        async function initializePayment() {
-            // 서버에서 환경변수(Client Key) 가져오기
-            const configResponse = await fetch('/api/config');
-            const config = await configResponse.json();
-            
-            // 토스페이먼츠 초기화
-            const tossPayments = TossPayments(config.clientKey);
-            
-            // 구매자 고유 아이디 (토스 예제 방식)
-            //const customerKey = "customer_" + Math.random().toString(36).substring(2, 15);
-            const customerKey = "LOCLcI03h8uAeJmLSG4VO";
-            const payment = tossPayments.payment({ customerKey });
+  <script>
+    async function initializePayment() {
+      // 서버에서 환경변수(Client Key) 가져오기
+      const configResponse = await fetch('/api/config');
+      const config = await configResponse.json();
 
-            const button = document.getElementById('payment-button');
-            
-            button.addEventListener('click', async () => {
-                // 실무 포인트: 주문번호(orderId)는 결제 요청 시마다 고유해야 합니다.
-                // 하드코딩하면 중복 결제 오류가 발생하므로, 타임스탬프와 난수를 조합해 고유하게 생성합니다.
-                const generateOrderId = () => {
-                    const timestamp = Date.now();
-                    const randomStr = Math.random().toString(36).substring(2, 8);
-                    return `ORDER_${timestamp}_${randomStr}`;
-                };
+      // 토스페이먼츠 초기화
+      const tossPayments = TossPayments(config.clientKey);
 
-                const currentOrderId = generateOrderId();
+      // 구매자 고유 아이디 (토스 예제 방식)
+      //const customerKey = "customer_" + Math.random().toString(36).substring(2, 15);
+      const customerKey = "LOCLcI03h8uAeJmLSG4VO";
+      const payment = tossPayments.payment({ customerKey });
 
-                // 토스 자체창 가이드 원본 파라미터 적용
-                await payment.requestPayment({
-                    method: "CARD",
-                    amount: {
-                        currency: "KRW",
-                        value: 50000,
-                    },
-                    orderId: currentOrderId, // 동적으로 생성된 주문번호 사용
-                    orderName: "토스 티셔츠 외 2건",
-                    successUrl: window.location.origin + "/success.html",
-                    failUrl: window.location.origin + "/fail.html",
-                    customerEmail: "customer123@gmail.com",
-                    customerName: "김토스",
-                    customerMobilePhone: "01012341234",
-                    card: {
-                        flowMode: "DIRECT",
-                        easyPay: "토스페이",
-                        useEscrow: false
-                    }
-                });
-            });
-        }
+      const button = document.getElementById('payment-button');
 
-        initializePayment();
-    </script>
+      button.addEventListener('click', async () => {
+        // 실무 포인트: 주문번호(orderId)는 결제 요청 시마다 고유해야 합니다.
+        // 하드코딩하면 중복 결제 오류가 발생하므로, 타임스탬프와 난수를 조합해 고유하게 생성합니다.
+        const generateOrderId = () => {
+          const timestamp = Date.now();
+          const randomStr = Math.random().toString(36).substring(2, 8);
+          return `ORDER_${timestamp}_${randomStr}`;
+        };
+
+        const currentOrderId = generateOrderId();
+
+        // 토스 자체창 가이드 원본 파라미터 적용
+        await payment.requestPayment({
+          method: "CARD",
+          amount: {
+            currency: "KRW",
+            value: 50000,
+          },
+          orderId: currentOrderId, // 동적으로 생성된 주문번호 사용
+          orderName: "토스 티셔츠 외 2건",
+          successUrl: window.location.origin + "/success.html",
+          failUrl: window.location.origin + "/fail.html",
+          customerEmail: "customer123@gmail.com",
+          customerName: "김토스",
+          customerMobilePhone: "01012341234",
+          card: {
+            flowMode: "DIRECT",
+            easyPay: "토스페이",
+            useEscrow: false
+          }
+        });
+      });
+    }
+
+    initializePayment();
+  </script>
 </body>
+
 </html>
