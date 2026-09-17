@@ -23,12 +23,9 @@
 </head>
 
 <body>
-  <!-- <h1>주문 결제</h1>
-  <button id="payment-button">결제하기</button> -->
   <div class="container" id="app">
     <h1>결제 테스트 (Admin 대행)</h1>
 
-    <!-- 단계별 HTML 코드가 들어갈 위치 -->
     <div class="section">
       <label for="customerSelect">1. 고객 선택</label>
       <select id="customerSelect" style="width: 100%;">
@@ -55,7 +52,6 @@
     </div>
   
   </div>
-
 
   <script>
     const customerSelect = document.getElementById('customerSelect');
@@ -161,16 +157,6 @@
       // 고객과 상품이 모두 선택되어야 결제 버튼 활성화
       btnPayment.disabled = !(state.selectedCustomer && productIds.length > 0);
     }
-
-    // 임시 결제 버튼 이벤트
-    // btnPayment.addEventListener('click', () => {
-    //   alert(`[결제 준비 완료]\n고객: ${state.selectedCustomer.name}\n주문명: ${summaryOrderName.textContent}\n총액: ${summaryTotalAmount.textContent}`);
-    // });
-
-
-
-
-
 
     async function initializePayment() {
       // 서버에서 환경변수(Client Key) 가져오기
