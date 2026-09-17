@@ -39,6 +39,20 @@
       <label>2. 상품 선택</label>
       <div id="productList"></div>
     </div>
+    <div class="section">
+      <label>3. 결제 정보 요약</label>
+      <div class="summary-box">
+        <div class="summary-item">
+          <span>주문명:</span>
+          <span id="summaryOrderName">-</span>
+        </div>
+        <div class="summary-item total">
+          <span>최종 결제 금액:</span>
+          <span id="summaryTotalAmount">0원</span>
+        </div>
+      </div>
+      <button id="btnPayment" class="btn-pay" disabled>결제하기</button>
+    </div>
   
   </div>
 
@@ -46,6 +60,9 @@
   <script>
     const customerSelect = document.getElementById('customerSelect');
     const productList = document.getElementById('productList');
+    const summaryOrderName = document.getElementById('summaryOrderName');
+    const summaryTotalAmount = document.getElementById('summaryTotalAmount');
+    const btnPayment = document.getElementById('btnPayment');
 
     // 목업 데이터로 고객 옵션 생성
     mockCustomers.forEach(customer => {
