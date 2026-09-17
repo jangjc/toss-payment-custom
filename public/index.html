@@ -89,6 +89,81 @@
       productList.appendChild(div);
     });
 
+    // 상태 관리 객체
+    const state = {
+      selectedCustomer: null,
+      selectedProducts: {} // { productId: quantity }
+    };
+
+    // 고객 선택 이벤트
+    customerSelect.addEventListener('change', (e) => {
+      const customerKey = e.target.value;
+      state.selectedCustomer = mockCustomers.find(c => c.customerKey === customerKey) || null;
+      updateSummary();
+    });
+
+    // 상품 체크 및 수량 변경 이벤트
+    productList.addEventListener('change', (e) => {
+      if (e.target.classList.contains('product-check')) {
+        const qtyInput = document.getElementById(`qty_${e.target.value}`);
+        qtyInput.disabled = !e.target.checked;
+        if (!e.target.checked) qtyInput.value = 1;
+      }
+      calculateSelectedProducts();
+    });
+
+    productList.addEventListener('input', (e) => {
+      if (e.target.type === 'number') calculateSelectedProducts();
+    });
+
+    function calculateSelectedProducts() {
+      state.selectedProducts = {};
+      const checkboxes = document.querySelectorAll('.product-check:checked');
+      
+      checkboxes.forEach(checkbox => {
+        const productId = checkbox.value;
+        const qty = parseInt(document.getElementById(`qty_${productId}`).value) || 1;
+        state.selectedProducts[productId] = qty;
+      });
+      
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const productIds = Object.keys(state.selectedProducts);
+      let totalAmount = 0;
+      let orderName = "-";
+
+      if (productIds.length > 0) {
+        productIds.forEach(id => {
+          const product = mockProducts.find(p => p.productId === id);
+          totalAmount += product.price * state.selectedProducts[id];
+        });
+
+        const firstProduct = mockProducts.find(p => p.productId === productIds[0]);
+        let totalItemsCount = 0;
+        productIds.forEach(id => totalItemsCount += state.selectedProducts[id]);
+
+        orderName = totalItemsCount > 1 
+          ? `${firstProduct.name} 외 ${totalItemsCount - 1}건` 
+          : firstProduct.name;
+      }
+
+      summaryOrderName.textContent = orderName;
+      summaryTotalAmount.textContent = `${totalAmount.toLocaleString()}원`;
+
+      // 고객과 상품이 모두 선택되어야 결제 버튼 활성화
+      btnPayment.disabled = !(state.selectedCustomer && productIds.length > 0);
+    }
+
+    // 임시 결제 버튼 이벤트
+    btnPayment.addEventListener('click', () => {
+      alert(`[결제 준비 완료]\n고객: ${state.selectedCustomer.name}\n주문명: ${summaryOrderName.textContent}\n총액: ${summaryTotalAmount.textContent}`);
+    });
+
+
+
+
 
 
     async function initializePayment() {
