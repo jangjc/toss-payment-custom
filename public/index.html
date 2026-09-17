@@ -4,15 +4,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>토스페이먼츠 자체창 결제</title>
+  <title>Toss Payment - Admin 대행 결제 테스트</title>
   <script src="https://js.tosspayments.com/v2/standard"></script>
+  <script src="./mockData.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background-color: #f9f9f9; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    select, input[type="number"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .product-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 10px; border: 1px solid #eee; }
+    .summary-box { background: #f0f4ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+    .summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .total { font-weight: bold; font-size: 20px; color: #3182f6; border-top: 1px solid #c8d6e5; padding-top: 10px; }
+    .btn-pay { width: 100%; background-color: #3182f6; color: white; padding: 15px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-pay:disabled { background-color: #ccc; cursor: not-allowed; }
+  </style>
 </head>
 
 <body>
-  <h1>주문 결제</h1>
-  <button id="payment-button">결제하기</button>
+  <!-- <h1>주문 결제</h1>
+  <button id="payment-button">결제하기</button> -->
+  <div class="container" id="app">
+    <h1>결제 테스트 (Admin 대행)</h1>
+
+    <!-- 단계별 HTML 코드가 들어갈 위치 -->
+    <div class="section">
+      <label for="customerSelect">1. 고객 선택</label>
+      <select id="customerSelect" style="width: 100%;">
+        <option value="">고객을 선택해주세요</option>
+      </select>
+    </div>
+  
+  </div>
+
 
   <script>
+    const customerSelect = document.getElementById('customerSelect');
+
+    // 목업 데이터로 고객 옵션 생성
+    mockCustomers.forEach(customer => {
+      const option = document.createElement('option');
+      option.value = customer.customerKey;
+      option.textContent = `${customer.name} (${customer.email})`;
+      customerSelect.appendChild(option);
+    });
+
+
+
     async function initializePayment() {
       // 서버에서 환경변수(Client Key) 가져오기
       const configResponse = await fetch('/api/config');
