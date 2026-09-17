@@ -129,17 +129,21 @@
       updateSummary();
     }
 
+    let calculatedTotalAmount = 0; // 결제 시 SDK에 넘길 숫자형 변수 보관
+
     function updateSummary() {
       const productIds = Object.keys(state.selectedProducts);
-      let totalAmount = 0;
+      calculatedTotalAmount = 0;
       let orderName = "-";
 
       if (productIds.length > 0) {
+        // 총액 계산
         productIds.forEach(id => {
           const product = mockProducts.find(p => p.productId === id);
-          totalAmount += product.price * state.selectedProducts[id];
+          calculatedTotalAmount += product.price * state.selectedProducts[id];
         });
 
+        // 주문명 생성 로직 (예: "상품A 외 2건")
         const firstProduct = mockProducts.find(p => p.productId === productIds[0]);
         let totalItemsCount = 0;
         productIds.forEach(id => totalItemsCount += state.selectedProducts[id]);
@@ -149,17 +153,19 @@
           : firstProduct.name;
       }
 
+      // 화면 업데이트
       summaryOrderName.textContent = orderName;
-      summaryTotalAmount.textContent = `${totalAmount.toLocaleString()}원`;
+      // 화면에는 콤마를 붙여서 출력
+      summaryTotalAmount.textContent = `${calculatedTotalAmount.toLocaleString()}원`;
 
       // 고객과 상품이 모두 선택되어야 결제 버튼 활성화
       btnPayment.disabled = !(state.selectedCustomer && productIds.length > 0);
     }
 
     // 임시 결제 버튼 이벤트
-    btnPayment.addEventListener('click', () => {
-      alert(`[결제 준비 완료]\n고객: ${state.selectedCustomer.name}\n주문명: ${summaryOrderName.textContent}\n총액: ${summaryTotalAmount.textContent}`);
-    });
+    // btnPayment.addEventListener('click', () => {
+    //   alert(`[결제 준비 완료]\n고객: ${state.selectedCustomer.name}\n주문명: ${summaryOrderName.textContent}\n총액: ${summaryTotalAmount.textContent}`);
+    // });
 
 
 
@@ -176,36 +182,43 @@
 
       // 구매자 고유 아이디 (토스 예제 방식)
       //const customerKey = "customer_" + Math.random().toString(36).substring(2, 15);
-      const customerKey = "LOCLcI03h8uAeJmLSG4VO";
-      const payment = tossPayments.payment({ customerKey });
+      // const customerKey = "LOCLcI03h8uAeJmLSG4VO";
+      // const payment = tossPayments.payment({ customerKey });
 
-      const button = document.getElementById('payment-button');
+      // DOM에서 기존에 만들어둔 btnPayment 버튼 가져오기
+      const button = document.getElementById('btnPayment');
 
       button.addEventListener('click', async () => {
-        // 실무 포인트: 주문번호(orderId)는 결제 요청 시마다 고유해야 합니다.
-        // 하드코딩하면 중복 결제 오류가 발생하므로, 타임스탬프와 난수를 조합해 고유하게 생성합니다.
+        // 방어 로직: 고객이 선택되지 않았거나 결제 금액이 0원이면 실행 안 함
+        if (!state.selectedCustomer || calculatedTotalAmount === 0) return;
+
+        // 고객 고유 키를 동적으로 세팅하여 payment 객체 생성
+        const payment = tossPayments.payment({ customerKey: state.selectedCustomer.customerKey });
+
+
+        // 주문번호(orderId) 동적 생성 (기존 유지)
         const generateOrderId = () => {
           const timestamp = Date.now();
           const randomStr = Math.random().toString(36).substring(2, 8);
           return `ORDER_${timestamp}_${randomStr}`;
         };
-
         const currentOrderId = generateOrderId();
 
-        // 토스 자체창 가이드 원본 파라미터 적용
+        // 계산된 상태(state) 데이터들을 SDK 파라미터로 주입
         await payment.requestPayment({
           method: "CARD",
           amount: {
             currency: "KRW",
-            value: 50000,
+            value: calculatedTotalAmount, // 화면에 계산된 총액 할당
           },
           orderId: currentOrderId, // 동적으로 생성된 주문번호 사용
-          orderName: "토스 티셔츠 외 2건",
+          orderName: summaryOrderName.textContent, // 화면에 표시된 주문명 할당
           successUrl: window.location.origin + "/success.html",
           failUrl: window.location.origin + "/fail.html",
-          customerEmail: "customer123@gmail.com",
-          customerName: "김토스",
-          customerMobilePhone: "01012341234",
+          customerEmail: state.selectedCustomer.email, // 동적 고객 이메일
+          customerName: state.selectedCustomer.name,   // 동적 고객 이름
+          // 토스 정책에 맞춰 전화번호의 하이픈(-) 제거 후 할당
+          customerMobilePhone: state.selectedCustomer.phone.replace(/-/g, ''),
           card: {
             flowMode: "DIRECT",
             easyPay: "토스페이",
