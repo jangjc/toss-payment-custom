@@ -13,7 +13,7 @@ app.get('/api/config', (req, res) => {
 });
 
 // 토스 공식 예제 스타일의 승인 API
-app.post('/confirm', async function (req, res) {
+app.post('/api/confirm', async function (req, res) {
   const { paymentKey, orderId, amount } = req.body;
   const secretKey = process.env.TOSS_SECRET_KEY;
 
